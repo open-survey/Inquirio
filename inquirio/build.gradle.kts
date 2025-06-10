@@ -3,8 +3,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.androidLint)
 }
 
@@ -39,6 +37,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
+                implementation(libs.arrow.core)
             }
         }
 
