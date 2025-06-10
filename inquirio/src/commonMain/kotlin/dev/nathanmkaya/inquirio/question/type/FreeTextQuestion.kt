@@ -12,6 +12,50 @@ import dev.nathanmkaya.inquirio.question.model.Question
 import dev.nathanmkaya.inquirio.response.model.QuestionResponse
 import dev.nathanmkaya.inquirio.response.type.TextResponse
 
+/**
+ * Question that accepts free-form text input from users.
+ * 
+ * FreeTextQuestion allows users to provide open-ended responses with configurable
+ * validation rules such as length limits, input type hints, and pattern matching.
+ * 
+ * ## Features
+ * - **Flexible Input**: Supports various text input types (email, phone, etc.)
+ * - **Length Validation**: Configurable minimum and maximum character limits
+ * - **Pattern Matching**: Optional regex validation for specific formats
+ * - **Input Hints**: UI hints for better user experience
+ * 
+ * ## Example Usage
+ * ```kotlin
+ * val nameQuestion = FreeTextQuestion(
+ *     id = "full-name",
+ *     text = "What is your full name?",
+ *     isRequired = true,
+ *     config = TextConfig(
+ *         inputType = TextInputType.PersonName,
+ *         maxLength = 100,
+ *         minLength = 2
+ *     )
+ * ).getOrThrow()
+ * 
+ * val emailQuestion = FreeTextQuestion(
+ *     id = "email",
+ *     text = "Enter your email address:",
+ *     isRequired = true,
+ *     config = TextConfig(
+ *         inputType = TextInputType.Email,
+ *         validationPattern = "^[A-Za-z0-9+_.-]+@(.+)$"
+ *     )
+ * ).getOrThrow()
+ * ```
+ * 
+ * @param id Unique identifier for the question
+ * @param text The question text displayed to users
+ * @param description Optional additional description or instructions
+ * @param isRequired Whether a response is required to proceed
+ * @param metadata Additional custom data attached to the question
+ * @param config Text input configuration including validation rules
+ * @since 1.0.0
+ */
 data class FreeTextQuestion private constructor(
     override val id: QuestionId,
     override val text: String,

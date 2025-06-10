@@ -14,8 +14,44 @@ import dev.nathanmkaya.inquirio.response.model.QuestionResponse
 import dev.nathanmkaya.inquirio.survey.settings.SurveySettings
 
 /**
- * Survey with validation and smart constructor
- * CUPID: Composable, Domain-based
+ * A complete survey with questions and metadata.
+ * 
+ * Survey is the main aggregate root that contains a collection of questions
+ * and manages their flow and validation. It uses validation by construction
+ * to ensure all surveys are created in a valid state.
+ * 
+ * ## Key Features
+ * - **Smart Constructor**: Validates all properties during creation
+ * - **Question Flow**: Automatically creates a navigation chain from questions
+ * - **Type Safety**: Uses domain identifiers to prevent ID mix-ups
+ * - **Extensible**: Supports custom metadata and settings
+ * 
+ * ## Example Usage
+ * ```kotlin
+ * val survey = Survey(
+ *     id = "user-feedback",
+ *     title = "User Feedback Survey",
+ *     description = "Help us improve our service",
+ *     questions = listOf(
+ *         FreeTextQuestion(id = "name", text = "Your name?", isRequired = true),
+ *         BooleanQuestion(id = "satisfied", text = "Are you satisfied?")
+ *     )
+ * ).getOrElse { errors ->
+ *     // Handle validation errors
+ *     println("Survey creation failed: $errors")
+ *     return
+ * }
+ * ```
+ * 
+ * @param id Unique identifier for the survey
+ * @param title Display title for the survey
+ * @param description Optional description explaining the survey purpose
+ * @param version Version string for survey versioning (default: "1.0")
+ * @param firstQuestion Entry point for survey navigation (auto-generated from questions)
+ * @param allQuestions Internal list of all questions for validation and lookup
+ * @param settings Survey behavior configuration
+ * @param metadata Additional custom data attached to the survey
+ * @since 1.0.0
  */
 data class Survey private constructor(
     val id: SurveyId,
@@ -29,8 +65,26 @@ data class Survey private constructor(
 ) {
     companion object {
         /**
-         * Smart constructor with validation using Raise DSL.
-         * It validates properties and checks for duplicate question IDs.
+         * Smart constructor that validates all survey properties.
+         * 
+         * Creates a survey with comprehensive validation including:
+         * - Survey ID format validation
+         * - Non-empty title requirement
+         * - At least one question requirement
+         * - Duplicate question ID detection
+         * - Automatic question navigation chain creation
+         * 
+         * All validation errors are collected and returned together, allowing
+         * the caller to address multiple issues at once.
+         * 
+         * @param id String identifier that will be converted to a type-safe [SurveyId]
+         * @param title Display title for the survey (must not be blank)
+         * @param description Optional description explaining the survey purpose
+         * @param version Version string for survey versioning
+         * @param questions List of questions to include in the survey
+         * @param settings Survey behavior configuration
+         * @param metadata Additional custom data to attach to the survey
+         * @return Either a list of validation errors or a valid Survey instance
          */
         operator fun invoke(
             id: String,
