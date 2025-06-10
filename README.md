@@ -35,6 +35,7 @@ A type-safe, functional Kotlin Multiplatform survey library powered by Arrow-kt.
 dependencies {
     implementation("io.arrow-kt:arrow-core:2.1.2")
     implementation(project(":inquirio"))
+    implementation(project(":inquirio-ui")) // For Compose UI components
 }
 ```
 
@@ -91,54 +92,69 @@ val systemConfig = surveySystem {
 val engine = SurveyEngine(systemConfig)
 ```
 
-### 4. Run a Survey Flow
+### 4. Display the Survey UI
 
 ```kotlin
-suspend fun runSurvey() {
-    // Start the survey
+import androidx.compose.runtime.*
+import dev.nathanmkaya.inquirio.ui.screen.SurveyScreen
+
+@Composable
+fun MyApp() {
     val flow = engine.startSurvey(survey)
     
-    while (flow.currentQuestion.isSome()) {
-        val question = flow.currentQuestion.getOrNull()!!
-        println("Question: ${question.text}")
-        
-        // Collect user input (example with text response)
-        val userInput = readLine() ?: ""
-        val response = TextResponse(
-            questionId = question.id,
-            value = userInput
-        )
-        
-        // Add response and navigate
-        flow.addResponse(response).fold(
-            ifLeft = { errors -> println("Invalid response: $errors") },
-            ifRight = { 
-                flow.next().fold(
-                    ifLeft = { error -> 
-                        if (error == NavigationError.NoNextQuestion) {
-                            println("Survey complete!")
-                            // Submit responses
-                            engine.submitResponse(survey, flow.currentResponses)
-                                .fold(
-                                    ifLeft = { error -> println("Submission failed: $error") },
-                                    ifRight = { println("Survey submitted successfully!") }
-                                )
-                        } else {
-                            println("Navigation error: $error")
-                        }
-                    },
-                    ifRight = { /* Continue to next question */ }
-                )
+    SurveyScreen(
+        flow = flow,
+        onSurveyComplete = { responses ->
+            println("Survey completed with ${responses.size} responses")
+            // Submit the responses
+            CoroutineScope(Dispatchers.Main).launch {
+                engine.submitResponse(survey, SurveyResponse.create(survey.id).copy(responses = responses))
+                    .fold(
+                        ifLeft = { error -> println("Submission failed: $error") },
+                        ifRight = { println("Survey submitted successfully!") }
+                    )
             }
-        )
-    }
+        },
+        onError = { error ->
+            println("Survey error: $error")
+        }
+    )
 }
+```
+
+### 5. Customize Question Renderers (Optional)
+
+```kotlin
+import dev.nathanmkaya.inquirio.ui.renderer.*
+
+@Composable 
+fun CustomBooleanRenderer(
+    question: BooleanQuestion,
+    response: QuestionResponse?,
+    onResponse: (QuestionResponse) -> Unit
+) {
+    // Your custom UI implementation
+    MyCustomToggleSwitch(
+        question = question,
+        onToggle = { value -> onResponse(BooleanResponse(question.id, value)) }
+    )
+}
+
+val customRenderers = defaultQuestionRenderers() + mapOf(
+    BooleanQuestion::class to { q, r, onR -> 
+        CustomBooleanRenderer(q as BooleanQuestion, r, onR) 
+    }
+)
+
+val registry = QuestionRendererRegistry(customRenderers)
+SurveyScreen(flow = flow, rendererRegistry = registry)
 ```
 
 ## Architecture
 
-Inquirio follows domain-driven design principles:
+Inquirio follows domain-driven design principles with a modular architecture:
 
+### Core Library (`inquirio`)
 ```
 inquirio/
 ├── core/           # Domain identifiers, errors, validation
@@ -149,6 +165,19 @@ inquirio/
 ├── engine/         # System configuration and orchestration
 └── platform/       # Platform-specific implementations
 ```
+
+### UI Library (`inquirio-ui`)
+```
+inquirio-ui/
+├── renderer/       # Question renderer registry and default renderers
+├── screen/         # Main survey screen composable
+└── InquirioUI.kt   # Public API facade
+```
+
+The architecture maintains clean separation:
+- **Headless Core**: Pure logic library with no UI dependencies
+- **UI Layer**: Compose-based UI that depends on core
+- **Extensible Renderers**: Type-safe registry for customizing question UI
 
 ## Error Handling
 

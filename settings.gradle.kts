@@ -1,7 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
 rootProject.name = "Inquirio"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+// Temporarily disable to avoid naming conflicts
+// enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
@@ -32,3 +33,4 @@ dependencyResolutionManagement {
 
 include(":composeApp")
 include(":inquirio")
+include(":inquirio-ui")
