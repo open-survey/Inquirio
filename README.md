@@ -28,7 +28,23 @@ A type-safe, functional Kotlin Multiplatform survey library powered by Arrow-kt.
 
 ## Getting Started
 
-### 1. Add Dependencies
+### 1. Try the Demo
+
+Clone this repository and run the demo to see Inquirio in action:
+
+```bash
+git clone <repository-url>
+cd Inquirio
+./gradlew :composeApp:run
+```
+
+The demo showcases:
+- Complete survey flow with 6 different question types
+- Real-time validation and error handling
+- Survey completion with results display
+- Material Design 3 UI components
+
+### 2. Add Dependencies
 
 ```kotlin
 // In your module's build.gradle.kts
@@ -39,7 +55,7 @@ dependencies {
 }
 ```
 
-### 2. Create a Survey
+### 3. Create a Survey
 
 ```kotlin
 import dev.nathanmkaya.inquirio.*
@@ -76,7 +92,7 @@ val survey = Survey(
 }
 ```
 
-### 3. Configure the System
+### 4. Configure the System
 
 ```kotlin
 val systemConfig = surveySystem {
@@ -92,7 +108,7 @@ val systemConfig = surveySystem {
 val engine = SurveyEngine(systemConfig)
 ```
 
-### 4. Display the Survey UI
+### 5. Display the Survey UI
 
 ```kotlin
 import androidx.compose.runtime.*
@@ -122,7 +138,7 @@ fun MyApp() {
 }
 ```
 
-### 5. Customize Question Renderers (Optional)
+### 6. Customize Question Renderers (Optional)
 
 ```kotlin
 import dev.nathanmkaya.inquirio.ui.renderer.*
@@ -148,6 +164,36 @@ val customRenderers = defaultQuestionRenderers() + mapOf(
 
 val registry = QuestionRendererRegistry(customRenderers)
 SurveyScreen(flow = flow, rendererRegistry = registry)
+```
+
+## Demo Application
+
+The included demo application (`composeApp`) showcases all library features:
+
+### Demo Features
+- **Multi-Screen Flow**: Home → Survey → Results → Home
+- **Complete Survey**: 6 question types demonstrating library capabilities:
+  - Text input with validation (Full Name)
+  - Email input with email-specific validation
+  - Boolean question with custom labels (Satisfaction)
+  - Single-choice multiple choice (Experience Level)
+  - Multi-choice multiple choice (Interested Features)
+  - Multiline text input (Additional Feedback)
+- **Error Handling**: Real-time validation with user-friendly error messages
+- **State Management**: Proper Compose state handling and coroutines
+- **Material Design**: Clean, modern UI following Material Design 3
+- **Response Display**: Formatted results screen showing user responses
+
+### Running the Demo
+```bash
+# For Android
+./gradlew :composeApp:installDebug
+
+# For iOS (requires Xcode)
+./gradlew :composeApp:iosSimulatorArm64Test
+
+# For Desktop
+./gradlew :composeApp:run
 ```
 
 ## Architecture
