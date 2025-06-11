@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import arrow.core.none
 import dev.nathanmkaya.inquirio.core.error.NavigationError
 import dev.nathanmkaya.inquirio.core.error.ResponseValidationError
 import dev.nathanmkaya.inquirio.core.id.QuestionId
@@ -193,8 +194,8 @@ fun SurveyScreen(
                                     flow.next().fold(
                                         ifLeft = { error ->
                                             if (error == NavigationError.NoNextQuestion) {
-                                                // Survey is complete
-                                                currentQuestion = flow.currentQuestion
+                                                // Survey is complete - set currentQuestion to empty
+                                                currentQuestion = none()
                                             } else {
                                                 errorMessage = formatNavigationError(error)
                                             }

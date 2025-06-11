@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(project(":inquirio"))
+            implementation(project(":inquirio-ui"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

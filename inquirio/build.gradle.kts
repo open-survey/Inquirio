@@ -37,7 +37,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                implementation(libs.arrow.core)
+                api(libs.arrow.core)
             }
         }
 
